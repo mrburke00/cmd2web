@@ -4,6 +4,11 @@ import re
 import random
 from flask import Flask,send_file
 import requests
+import os
+
+parse = os.path.abspath('parse_src')
+sys.path.insert(1,parse)
+import fortran_parse
 
 #{{{def test_required(name, required, config):
 def test_required(name, required, config):
@@ -311,7 +316,8 @@ class Service:
     #{{{ def process_result(self, out_file_name):
     def process_result(self, out_file_name, script = None):
         if self.output.type == 'text_stream':
-            if not script:
+
+            if script != 'parse':
                 result = {"success":  1}
                 out = []
                 for line in open(out_file_name, 'r'):
@@ -322,9 +328,11 @@ class Service:
                 temp = []
                 out = []
                 for line in open(out_file_name, 'r'):
+                    print(line)
                     if line.strip() != '':
                         temp.append(line.strip())
-                out = process_parse(temp)
+                print(temp)
+                out = fortran_parse.process_parse(temp)
                 return json.dumps(out)
         elif self.output.type == 'file':
             self.output.value = Service.replace_variable(self.output.value,

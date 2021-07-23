@@ -10,8 +10,16 @@ import random
 import cmd2web
 ##Test##
 from OpenSSL import SSL
+from flask import render_template
+from OpenSSL import SSL
+from werkzeug.datastructures import ImmutableDict
+import os
+import subprocess
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder = "web_src/template", static_folder="web_src/static", static_url_path='')
+
+
+
 
 config = None
 server = None
@@ -32,47 +40,70 @@ def after_request(response):
 def info():
     return json.dumps(server.get_info())
 
-@app.route('/')
-def service():
+@app.route('/parse', methods=['GET', 'POST'])
+def index():
 
-    service = request.args.get('service')
+    sequence = ""
+    data = ""
+    if request.method == "POST":
+        sequence = request.form.get("sequence")
+        data = service('parse')
+    return render_template('parse.html', jsonfile=data)
+
+@app.route('/')
+def service(service = None):
+    #service = request.args.get('service')
 
     if not service:
         return cmd2web.Server.error('No service specified')
+    else:
+        sequence = request.form.get("sequence")
+        new_args = {}
+        new_args['sequence'] = sequence
+        args = ImmutableDict(new_args)
 
-    if not server.has_service(service):
-        return cmd2web.Server.error('Unknown service')
+    #if not server.has_service(service):
+    #    print('3')
+    #    return cmd2web.Server.error('Unknown service')
 
-    if not server.services[service].args_match(request.args):
-        return cmd2web.Server.error('Argument mismatch')
+    #if not server.services[service].args_match(request.args):
+    #    print('2')
+    #    return cmd2web.Server.error('Argument mismatch')
 
     service_instance = server.services[service].copy()
     
-    try:
-        cmd = service_instance.make_cmd(request.args)
-    except Exception as e:
-        return cmd2web.Server.error(str(e))
+    #try:
+    #    cmd = service_instance.make_cmd(request.args)
+    #except Exception as e:
 
-    print(' '.join(cmd))
+    #    return cmd2web.Server.error(str(e))
+
+    #print(' '.join(cmd))
+
 
     out_file_name = '/tmp/' + str(random.randint(0,sys.maxsize)) + '.out'
 
     f = open(out_file_name, 'w')
+    print(os.path.dirname('Parse.f'))
+    os.system('gfortran -o /home/user/parse_webapp/cmd2web/src/Parse.exe /home/user/parse_webapp/cmd2web/src/Parse.f \
+        && /home/user/parse_webapp/cmd2web/src/./Parse.exe '\
+        + sequence + ' > ' + out_file_name)
 
-    try:
-        proc = subprocess.check_call(cmd,
-                                     stderr=sys.stderr,
-                                     stdout=f,
-                                     timeout=timeout)
-    except subprocess.TimeoutExpired as e:
-        print('Time Out')
-        return cmd2web.Server.error('Time limit for current request exceed.')
-    except Exception as e:
-        return cmd2web.Server.error(str(e))
+    '''    try:
+            proc = subprocess.check_call(cmd,
+                                         stderr=sys.stderr,
+                                         stdout=f,
+                                         timeout=timeout)
+        except subprocess.TimeoutExpired as e:
+            print('Time Out')
+            return cmd2web.Server.error('Time limit for current request exceed.')
+        except Exception as e:
+            return cmd2web.Server.error(str(e))'''
 
     f.close()
 
-    return service_instance.process_result(out_file_name)
+
+    return service_instance.process_result(out_file_name, script = service)
 
 if __name__ == '__main__':
 
