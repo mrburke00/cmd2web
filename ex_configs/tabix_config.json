@@ -121,5 +121,34 @@
             "type" : "text_stream",
             "sep" : "\t"
         }
+    },
+    {
+
+        "name" : "fortran",
+        "arguments" : 
+        [
+
+            {
+                "name" : "sequence",
+                "fixed" : "false",
+                "type" : "string"
+            }
+
+        ],
+
+        "command":
+        [
+            "gfortran -o src/Parse.exe src/Parse.f",
+            "&& src/./Parse.exe",
+            "$sequence"
+        ],
+
+
+        "output" : 
+        {
+            "type" : "text_stream",
+            "sep" : "\t"
+        }
     }
+    
 ]

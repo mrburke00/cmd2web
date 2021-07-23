@@ -309,14 +309,23 @@ class Service:
     #}}}
 
     #{{{ def process_result(self, out_file_name):
-    def process_result(self, out_file_name):
+    def process_result(self, out_file_name, script = None):
         if self.output.type == 'text_stream':
-            result = {"success":  1}
-            out = []
-            for line in open(out_file_name, 'r'):
-                out.append(line.rstrip().split(self.output.sep))
-            result['result'] = out
-            return json.dumps(result)
+            if not script:
+                result = {"success":  1}
+                out = []
+                for line in open(out_file_name, 'r'):
+                    out.append(line.rstrip().split(self.output.sep))
+                result['result'] = out
+                return json.dumps(result)
+            else:
+                temp = []
+                out = []
+                for line in open(out_file_name, 'r'):
+                    if line.strip() != '':
+                        temp.append(line.strip())
+                out = process_parse(temp)
+                return json.dumps(out)
         elif self.output.type == 'file':
             self.output.value = Service.replace_variable(self.output.value,
                                                          self.variable_table)
