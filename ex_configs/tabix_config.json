@@ -138,8 +138,9 @@
 
         "command":
         [
-            "gfortran -o src/Parse.exe src/Parse.f",
-            "&& src/./Parse.exe",
+
+            "gfortran -o /home/user/parse_webapp/cmd2web/src/web_src/static/js/Parse.exe /home/user/parse_webapp/cmd2web/src/web_src/static/js/Parse.f",
+            "&& /home/user/parse_webapp/cmd2web/src/web_src/static/js/./Parse.exe ",
             "$sequence"
         ],
 

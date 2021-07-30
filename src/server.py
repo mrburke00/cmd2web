@@ -42,7 +42,6 @@ def info():
 
 @app.route('/parse', methods=['GET', 'POST'])
 def index():
-
     sequence = ""
     data = ""
     if request.method == "POST":
@@ -71,37 +70,37 @@ def service(service = None):
     #    return cmd2web.Server.error('Argument mismatch')
 
     service_instance = server.services[service].copy()
-    
-    #try:
-    #    cmd = service_instance.make_cmd(request.args)
-    #except Exception as e:
-
-    #    return cmd2web.Server.error(str(e))
-
+    try:
+        #cmd = service_instance.make_cmd(request.args)
+        cmd = service_instance.make_cmd(args)
+    except Exception as e:
+        return cmd2web.Server.error(str(e))
+    cmd = ' '.join(map(str,cmd))
     #print(' '.join(cmd))
-
 
     out_file_name = '/tmp/' + str(random.randint(0,sys.maxsize)) + '.out'
 
     f = open(out_file_name, 'w')
     print(os.path.dirname('Parse.f'))
-    os.system('gfortran -o /home/user/parse_webapp/cmd2web/src/Parse.exe /home/user/parse_webapp/cmd2web/src/Parse.f \
-        && /home/user/parse_webapp/cmd2web/src/./Parse.exe '\
-        + sequence + ' > ' + out_file_name)
 
-    '''    try:
-            proc = subprocess.check_call(cmd,
-                                         stderr=sys.stderr,
-                                         stdout=f,
-                                         timeout=timeout)
-        except subprocess.TimeoutExpired as e:
-            print('Time Out')
-            return cmd2web.Server.error('Time limit for current request exceed.')
-        except Exception as e:
-            return cmd2web.Server.error(str(e))'''
+    os.system(cmd + ' > ' + out_file_name)
+
+    #subprocess.call(cmd, shell=True, stdout=f)
+    '''
+    try:
+        proc = subprocess.check_call(cmd,
+                                     stderr=sys.stderr,
+                                     stdout=f,
+                                     timeout=timeout)
+    except subprocess.TimeoutExpired as e:
+        print('Time Out')
+        return cmd2web.Server.error('Time limit for current request exceed.')
+    except Exception as e:
+        print(e)
+        return cmd2web.Server.error(str(e))
+    '''
 
     f.close()
-
 
     return service_instance.process_result(out_file_name, script = service)
 
