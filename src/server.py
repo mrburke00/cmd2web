@@ -16,6 +16,11 @@ from werkzeug.datastructures import ImmutableDict
 import os
 import subprocess
 
+parse = os.path.abspath('parse_src')
+sys.path.insert(1,parse)
+import fortran_parse
+import fortran_wrapper
+
 app = Flask(__name__, template_folder = "web_src/template", static_folder="web_src/static", static_url_path='')
 
 
@@ -76,17 +81,25 @@ def service(service = None):
     except Exception as e:
         return cmd2web.Server.error(str(e))
     cmd = ' '.join(map(str,cmd))
+    print(cmd)
+
+
+
     #print(' '.join(cmd))
+
+
+
+    return fortran_wrapper.fortran_wrap(cmd)
+    '''
+    #os.system(cmd + ' > ' + out_file_name)
+
+    #subprocess.call(cmd, shell=True, stdout=f)
 
     out_file_name = '/tmp/' + str(random.randint(0,sys.maxsize)) + '.out'
 
     f = open(out_file_name, 'w')
+    
     print(os.path.dirname('Parse.f'))
-
-    os.system(cmd + ' > ' + out_file_name)
-
-    #subprocess.call(cmd, shell=True, stdout=f)
-    '''
     try:
         proc = subprocess.check_call(cmd,
                                      stderr=sys.stderr,
@@ -98,11 +111,10 @@ def service(service = None):
     except Exception as e:
         print(e)
         return cmd2web.Server.error(str(e))
+    f.close()        
+    return service_instance.process_result(out_file_name, script = service)
     '''
 
-    f.close()
-
-    return service_instance.process_result(out_file_name, script = service)
 
 if __name__ == '__main__':
 
