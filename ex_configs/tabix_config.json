@@ -139,8 +139,8 @@
         "command":
         [
 
-            "gfortran -o /home/user/parse_webapp/cmd2web/src/web_src/static/js/Parse.exe /home/user/parse_webapp/cmd2web/src/web_src/static/js/Parse.f",
-            "&& /home/user/parse_webapp/cmd2web/src/web_src/static/js/./Parse.exe ",
+            "gfortran -o /Users/DBurke/Documents/Layerlab/parse_webapp/cmd2web/src/web_src/static/js/Parse.exe /Users/DBurke/Documents/Layerlab/parse_webapp/cmd2web/src/web_src/static/js/Parse.f",
+            "&& /Users/DBurke/Documents/Layerlab/parse_webapp/cmd2web/src/web_src/static/js/./Parse.exe ",
             "$sequence"
         ],
 

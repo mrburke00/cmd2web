@@ -88,8 +88,10 @@ def service(service = None):
     #print(' '.join(cmd))
 
 
-
-    return fortran_wrapper.fortran_wrap(cmd)
+    cmd = 'gfortran -o /Users/DBurke/Documents/Layerlab/parse_webapp/cmd2web/src/web_src/static/js/Parse.exe /Users/DBurke/Documents/Layerlab/parse_webapp/cmd2web/src/web_src/static/js/Parse.f && /Users/DBurke/Documents/Layerlab/parse_webapp/cmd2web/src/web_src/static/js/./Parse.exe'
+    cmd += " " + "/Users/DBurke/Documents/Layerlab/parse_webapp/parse_src/test_seq.txt"
+    print(cmd)
+    return fortran_wrapper.fortran_wrap_file(cmd)
     '''
     #os.system(cmd + ' > ' + out_file_name)
 
