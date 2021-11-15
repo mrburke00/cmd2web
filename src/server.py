@@ -13,8 +13,11 @@ from OpenSSL import SSL
 from flask import render_template
 from OpenSSL import SSL
 from werkzeug.datastructures import ImmutableDict
+from werkzeug.utils import secure_filename
+from werkzeug.datastructures import  FileStorage
 import os
 import subprocess
+import pandas as pd
 
 parse = os.path.abspath('parse_src')
 sys.path.insert(1,parse)
@@ -49,15 +52,22 @@ def info():
 def index():
     sequence = ""
     data = ""
+    file_data = ""
     if request.method == "POST":
         sequence = request.form.get("sequence")
-        data = service('parse')
+        if not sequence:
+            try: 
+                file_data = request.files['file'].read()
+            except: 
+                print('failed to open file')
+        data = service('parse', file_data)
     return render_template('parse.html', jsonfile=data)
 
-@app.route('/')
-def service(service = None):
-    #service = request.args.get('service')
 
+@app.route('/')
+def service(service = None, file_data = None):
+    #service = request.args.get('service')
+    print('here')
     if not service:
         return cmd2web.Server.error('No service specified')
     else:
@@ -65,6 +75,7 @@ def service(service = None):
         new_args = {}
         new_args['sequence'] = sequence
         args = ImmutableDict(new_args)
+
 
     #if not server.has_service(service):
     #    print('3')
@@ -74,14 +85,14 @@ def service(service = None):
     #    print('2')
     #    return cmd2web.Server.error('Argument mismatch')
 
-    service_instance = server.services[service].copy()
-    try:
+    #service_instance = server.services[service].copy()
+    #try:
         #cmd = service_instance.make_cmd(request.args)
-        cmd = service_instance.make_cmd(args)
-    except Exception as e:
-        return cmd2web.Server.error(str(e))
-    cmd = ' '.join(map(str,cmd))
-    print(cmd)
+    #    cmd = service_instance.make_cmd(args)
+    #except Exception as e:
+    #    return cmd2web.Server.error(str(e))
+    #cmd = ' '.join(map(str,cmd))
+    #print(cmd)
 
 
 
@@ -89,9 +100,10 @@ def service(service = None):
 
 
     cmd = 'gfortran -o /Users/DBurke/Documents/Layerlab/parse_webapp/cmd2web/src/web_src/static/js/Parse.exe /Users/DBurke/Documents/Layerlab/parse_webapp/cmd2web/src/web_src/static/js/Parse.f && /Users/DBurke/Documents/Layerlab/parse_webapp/cmd2web/src/web_src/static/js/./Parse.exe'
-    cmd += " " + "/Users/DBurke/Documents/Layerlab/parse_webapp/parse_src/test_seq.txt"
-    print(cmd)
-    return fortran_wrapper.fortran_wrap_file(cmd)
+    #cmd += " " + "/Users/DBurke/Documents/Layerlab/parse_webapp/parse_src/test_seq.txt"
+    cmd += " " + file_data
+    print('cmd: ', cmd)
+    return fortran_wrapper.fortran_wrap(cmd)
     '''
     #os.system(cmd + ' > ' + out_file_name)
 
